@@ -19,6 +19,7 @@
         <module>youpu-manager-web</module>
     </modules>
 
+
     <build>
         <plugins>
             <plugin>
