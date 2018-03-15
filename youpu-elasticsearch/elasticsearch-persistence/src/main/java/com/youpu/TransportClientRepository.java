@@ -9,7 +9,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.collect.HppcMaps;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -18,9 +21,12 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 public class TransportClientRepository {
     private TransportClient client;
@@ -114,6 +120,8 @@ public class TransportClientRepository {
     }
 
 
+
+
     public void searchFullText(String field,String queryValue,int pageNum,int pageSize,String... indexs){
         QueryBuilder builder = QueryBuilders.matchQuery(field,queryValue);
         SearchResponse scrollRespose = client.prepareSearch(indexs).addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
@@ -129,6 +137,14 @@ public class TransportClientRepository {
 
     }
 
+    /**
+     * 全文检索
+     * @param param
+     * @param page
+     * @param indexs
+     * @param <T>
+     * @return
+     */
     public <T> ElasticSearchPage<T> searchFullText(T param,ElasticSearchPage<T> page,String... indexs){
         QueryBuilder builder = null;
         Map<String,Object> map = getObjectMap(param);
@@ -158,13 +174,91 @@ public class TransportClientRepository {
             }
 
 
+
         }
-        return null;
+        page.setTotal(response.getHits().totalHits);
+        page.setParam(param);
+        page.setRestList(result);
+
+        return page;
 
     }
 
-    private <T> Map<String,Object> getObjectMap(T param) {
-        return null;
+
+    /***
+     * 全文本搜索加高亮显示
+     * @param param
+     * @param page
+     * @param highlightBuilder
+     * @param indexs
+     * @return
+     */
+    public ElasticSearchPage<Article> searchFullText(Article param,ElasticSearchPage<Article> page,HighlightBuilder highlightBuilder,String... indexs){
+
+        QueryBuilder builder = null;
+        Map<String,Object> map = getObjectMap(param);
+        if(map==null){
+            return null;
+        }
+        for(Map.Entry<String,Object> entry : map.entrySet()){
+            if(entry.getValue()!=null){
+                builder = QueryBuilders.matchQuery(entry.getKey(),entry.getValue());
+
+            }
+
+        }
+
+        SearchResponse scrollResponse = client.prepareSearch(indexs).setFrom(page.getPageNum()*page.getPageSize()).highlighter(highlightBuilder)
+                .setSize(page.getPageSize()).setQuery(builder).get();
+        List<Article> result = new ArrayList<>();
+        for(SearchHit searchHit :scrollResponse.getHits().getHits()){
+
+            try {
+                Map<String,HighlightField> highlightResult = searchHit.getHighlightFields();
+                Article article = parseObject(param,searchHit.getSourceAsString());
+                String titleAdd = "";
+                for(Text textTemple :highlightResult.get("description").fragments()){
+                    titleAdd += textTemple;
+                }
+                article.setTitle(titleAdd);
+                result.add(article);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        page.setTotal(scrollResponse.getHits().totalHits);
+        page.setParam(param);
+        page.setRestList(result);
+        return page;
+    }
+
+
+    private static Map<String,Object> getObjectMap(Object object) {
+        List<Field> fieldList = new ArrayList<Field>();
+
+        Class tempClass = object.getClass();
+        while (tempClass!=null){
+            fieldList.addAll(Arrays.asList(tempClass.getDeclaredFields()));
+            tempClass = tempClass.getSuperclass();
+        }
+
+        Map<String,Object> result = new HashMap<>();
+        for(Field field : fieldList){
+            if(field.isAnnotationPresent(ESearchTypeColumn.class)){
+                try {
+                    PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(),object.getClass());
+                    result.put(field.getName(),descriptor.getReadMethod().invoke(object));
+                } catch (IntrospectionException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return result;
     }
 
     /**
@@ -207,7 +301,41 @@ public class TransportClientRepository {
         return client.admin().indices().prepareExists(index).execute().actionGet().isExists();
     }
 
-    private byte[] getXContentBuilderKeyValue(Object doc) {
+    public static XContentBuilder getXContentBuilderKeyValue(Object doc) {
+        try {
+            XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+            List<Field> fieldList = new ArrayList<Field>();
+
+            Class tempClass = doc.getClass();
+
+            while (tempClass!=null){
+                fieldList.addAll(Arrays.asList(tempClass.getDeclaredFields()));
+                tempClass = tempClass.getSuperclass();
+
+            }
+
+            for(Field field :fieldList){
+                if(field.isAnnotationPresent(ESearchTypeColumn.class)){
+                    PropertyDescriptor descriptor = new PropertyDescriptor(field.getName(),doc.getClass());
+
+                    Object value = descriptor.getReadMethod().invoke(doc);
+                    if(value!=null){
+                        builder.field(field.getName(),value.toString());
+                    }
+                }
+            }
+
+            builder.endObject();
+            return builder;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IntrospectionException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }
