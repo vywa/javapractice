@@ -15,7 +15,7 @@ public class App
     {
         try{
 
-            ApplicationContext ctx = new FileSystemXmlApplicationContext("youpu-dubbo/youpu-dubbo-client/src/main/java/dubboConsumer.xml");
+            ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:dubboConsumer.xml");
             HelloService helloService = (HelloService) ctx.getBean("helloService");
             Long start = System.currentTimeMillis();
             System.out.println("开始发送请求");

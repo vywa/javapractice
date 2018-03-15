@@ -14,7 +14,7 @@ public class App
     {
         try{
 
-            ApplicationContext ctx = new FileSystemXmlApplicationContext("youpu-dubbo/youpu-dubbo-server/src/main/java/applicationProvider.xml");
+            ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:applicationProvider.xml");
             System.out.println(" dubbo 正在提供服务");
             System.in.read();
 

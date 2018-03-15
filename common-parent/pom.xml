@@ -22,7 +22,6 @@
     <spring.version>4.2.6.RELEASE</spring.version>
     <spring-security.version>4.1.0.RELEASE</spring-security.version>
     <slf4j.version>1.7.25</slf4j.version>
-    <log4j.version>1.2.17</log4j.version>
     <thrift.version>0.11.0</thrift.version>
     <shiro.version>1.3.2</shiro.version>
     <fastjson.version>1.2.36</fastjson.version>
@@ -32,6 +31,8 @@
     <lombok.version>1.16.20</lombok.version>
     <jackson.version>2.8.1</jackson.version>
     <zkclient.version>0.10</zkclient.version>
+    <storm.version>1.1.1</storm.version>
+    <logback.version>1.1.7</logback.version>
   </properties>
 
   <dependencyManagement>
@@ -114,6 +115,15 @@
         <artifactId>junit</artifactId>
         <version>${junit.version}</version>
       </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.apache.storm/storm-core -->
+      <dependency>
+        <groupId>org.apache.storm</groupId>
+        <artifactId>storm-core</artifactId>
+        <version>${storm.version}</version>
+      </dependency>
+
+
       <!-- 可选依赖 -->
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
@@ -359,20 +369,26 @@
         <artifactId>jta</artifactId>
         <version>1.1</version>
       </dependency>
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>${log4j.version}</version>
-      </dependency>
+
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>${slf4j.version}</version>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-access</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
       </dependency>
 
       <dependency>
