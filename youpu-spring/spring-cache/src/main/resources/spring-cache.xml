@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:contex="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.2.xsd
+        http://www.springframework.org/schema/cache
+        http://www.springframework.org/schema/cache/spring-cache-4.2.xsd">
+
+    <!--配置文件加载-->
+    <context:property-placeholder location="classpath:*.properties"/>
+    <contex:component-scan base-package="com.youpu.service.impl"/>
+
+    <cache:annotation-driven cache-manager="springCacheManager"/>
+
+
+    <!--redis连接池-->
+    <!--<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">-->
+        <!--<property name="maxIdle" value="${redis.maxIdle}"/>-->
+        <!--<property name="maxWaitMillis" value="${redis.maxWait}"/>-->
+        <!--<property name="testOnBorrow" value="${redis.testOnBorrow}"/>-->
+    <!--</bean>-->
+
+    <!--连接工厂-->
+    <!--<bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"-->
+          <!--p:hostName="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}" p:poolConfig-ref="poolConfig"/>-->
+
+    <!--redis模版-->
+    <!--<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">-->
+        <!--<property name="connectionFactory" ref="jedisConnectionFactory"/>-->
+    <!--</bean>-->
+
+    <!--<bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">-->
+        <!--<property name="caches">-->
+            <!--<set>-->
+                <!--&lt;!&ndash;这里可以配置多个redis&ndash;&gt;-->
+                <!--<bean class="com.youpu.utils.RedisCache">-->
+                    <!--<property name="redisTemplate" ref="redisTemplate"/>-->
+                    <!--<property name="name" value="content"/>-->
+                    <!--&lt;!&ndash;name对应的名称要在类或方法的注解中使用&ndash;&gt;-->
+                <!--</bean>-->
+            <!--</set>-->
+        <!--</property>-->
+    <!--</bean>-->
+
+
+    <!--添加缓存管理器-->
+    <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:ehcache.xml"></property>
+    </bean>
+
+
+    <!--spring封装ehcache缓存管理器-->
+    <bean id="springCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager" ref="ehcache"></property>
+    </bean>
+
+
+
+    <!--shiro封装cacheManager-->
+    <bean id="shiroCacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <property name="cacheManager" ref="ehcache"/>
+    </bean>
+
+    <!--配置安全管理器-->
+    <!--<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">-->
+        <!--<property name="realm" ref="bosRealm"/>-->
+        <!--&lt;!&ndash;将shiro的缓存管理器，注入到安全管理器中&ndash;&gt;-->
+        <!--<property name="cacheManager" ref="shiroCacheManager"/>-->
+    <!--</bean>-->
+
+    <!--&lt;!&ndash;将自定义realm注入安全管理器SecurityManager当中&ndash;&gt;-->
+    <!--<bean id="bosRealm" class="com.youpu.realm.BosRealm">-->
+        <!--<property name="authorizationCacheName" value="bos"/>-->
+    <!--</bean>-->
+    <!--<bean id="userService" class="com.youpu.UserServiceImpl"></bean>-->
+</beans>

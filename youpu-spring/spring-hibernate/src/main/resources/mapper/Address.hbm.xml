@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.youpu.domain">
+    <class name="Address" table="address" >
+        <!--设置主键-->
+        <id name="id" column="ID" type="long">
+            <generator class="increment"/>
+        </id>
+
+        <!--基本属性-->
+        <property name="province" column="province" type="string" length="50" not-null="true"/>
+        <property name="city" column="city" type="string" length="50" not-null="true"/>
+
+        <many-to-one name="user" class="com.youpu.domain.User" column="user"></many-to-one>
+    </class>
+</hibernate-mapping>

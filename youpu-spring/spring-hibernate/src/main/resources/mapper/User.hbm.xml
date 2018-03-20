@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.youpu.domain">
+    <class name="User" table="user" >
+        <!--设置主键-->
+        <id name="id" column="id" type="long">
+            <generator class="increment"/>
+        </id>
+
+        <!--基本属性-->
+        <property name="username" column="username" type="string" length="20" not-null="true" access="property"/>
+        <property name="password" column="password" type="string" length="128" not-null="true"/>
+        <set name="address" cascade="save-update">
+            <key column="user"></key>
+            <one-to-many class="com.youpu.domain.Address"/>
+        </set>
+    </class>
+</hibernate-mapping>
