@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.2.xsd http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
+
+    <context:property-placeholder location="rabbitmq.properties"/>
+
+    <!--连接配置-->
+    <rabbit:connection-factory id="connectionFactory" host="${mq.host}" port="${mq.port}" username="${mq.username}" password="${mq.password}"/>
+    <rabbit:admin connection-factory="connectionFactory"/>
+
+    <!--声明一个template-->
+    <rabbit:template connection-factory="connectionFactory" id="amqpTemplate" exchange="${mq.queue}_exchange"/>
+
+    <!--声明一个交换机-->
+    <rabbit:topic-exchange name="${mq.queue}_exchange" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <rabbit:binding pattern="${mq.queue}_part" queue="test_queue"></rabbit:binding>
+        </rabbit:bindings>
+    </rabbit:topic-exchange>
+
+    <!--声明一个队列-->
+    <rabbit:queue id="test_queue" name="${mq.queue}_testQueue" durable="true" auto-delete="false" exclusive="false"/>
+
+    <!--配置监听-->
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto">
+        <!--queues 监听队列，多个用逗号隔开-->
+        <rabbit:listener ref="rabbitmqService" queues="test_queue" />
+        <rabbit:listener ref="consumerService" queues="test_queue" method="getMessage"/>
+
+    </rabbit:listener-container>
+
+
+    <context:component-scan base-package="com.youpu.service"></context:component-scan>
+</beans>

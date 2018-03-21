@@ -19,7 +19,6 @@
         <module>youpu-dubbo-client</module>
     </modules>
     <dependencies>
-
         <!-- junit -->
         <dependency>
             <groupId>junit</groupId>
@@ -94,6 +93,11 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
         </dependency>
 
         <!-- shiro -->

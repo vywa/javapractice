@@ -10,8 +10,8 @@
     <dubbo:registry protocol="zookeeper" address="localhost:2181"/>
     <dubbo:protocol name="dubbo" port="20880"/>
 
-    <bean id="helloservice" class="com.youpu.service.impl.HelloServiceImpl"/>
+    <!--<bean id="helloservice" class="com.youpu.service.impl.UserAccountServiceImpl"/>-->
     
-    <dubbo:service interface="com.youpu.service.HelloService" ref="helloservice"/>
-
+    <!--<dubbo:service interface="com.youpu.service.impl.UserAccountServiceImpl" ref="helloservice"/>-->
+    <dubbo:annotation package="com.youpu.service.impl"></dubbo:annotation>
 </beans>

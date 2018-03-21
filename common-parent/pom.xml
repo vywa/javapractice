@@ -39,11 +39,24 @@
     <jedis.version>2.7.0</jedis.version>
     <commons-lang3.version>3.2</commons-lang3.version>
     <ehcache.version>2.6.9</ehcache.version>
+    <spring-rabbit.version>2.0.2.RELEASE</spring-rabbit.version>
+    <amqp-client.version>5.2.0</amqp-client.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
 
+      <!-- RabbitMQ -->
+      <dependency>
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>${amqp-client.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.amqp</groupId>
+        <artifactId>spring-rabbit</artifactId>
+        <version>${spring-rabbit.version}</version>
+      </dependency>
       <!-- https://mvnrepository.com/artifact/org.apache.flume/flume-ng-core -->
       <dependency>
         <groupId>org.apache.flume</groupId>
@@ -74,6 +87,13 @@
             <artifactId>log4j</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/log4j/log4j -->
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.17</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.elasticsearch.client/transport -->
@@ -206,7 +226,7 @@
       <dependency>
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
-        <version>3.20.0-GA</version>
+        <version>3.22.0-GA</version>
       </dependency>
       <dependency>
         <groupId>antlr</groupId>

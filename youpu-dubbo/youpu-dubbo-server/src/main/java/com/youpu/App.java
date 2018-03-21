@@ -22,6 +22,5 @@ public class App
             System.out.println("出错了 ");
             ex.printStackTrace();
         }
-        System.out.println( "Hello World!" );
     }
 }

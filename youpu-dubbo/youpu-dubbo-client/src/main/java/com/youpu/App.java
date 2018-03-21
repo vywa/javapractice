@@ -1,9 +1,8 @@
 package com.youpu;
 
-import com.youpu.service.HelloService;
+import com.youpu.service.impl.UserAccountServiceImpl;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * Hello world!
@@ -16,11 +15,12 @@ public class App
         try{
 
             ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:dubboConsumer.xml");
-            HelloService helloService = (HelloService) ctx.getBean("helloService");
+            UserAccountServiceImpl myService = (UserAccountServiceImpl) ctx.getBean("myService");
+
             Long start = System.currentTimeMillis();
             System.out.println("开始发送请求");
             for(int i=0;i<10000;i++){
-                helloService.sayHello();
+                myService.sayHello();
             }
 
             Long end = System.currentTimeMillis();
