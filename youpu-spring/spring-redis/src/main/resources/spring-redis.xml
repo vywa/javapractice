@@ -14,7 +14,7 @@
 
     <!--配置文件加载-->
     <context:property-placeholder location="classpath:*.properties"/>
-
+    <context:component-scan base-package="com.youpu.utils,com.youpu.service"/>
 
 
     <!--redis连接池-->
@@ -26,24 +26,17 @@
 
     <!--连接工厂-->
     <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-          p:hostName="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}" p:poolConfig-ref="poolConfig"/>
+          p:hostName="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}" p:database="${redis.database}" p:poolConfig-ref="poolConfig"/>
 
     <!--redis模版-->
     <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
         <property name="connectionFactory" ref="jedisConnectionFactory"/>
     </bean>
 
-    <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
-        <property name="caches">
-            <set>
-                <!--这里可以配置多个redis-->
-                <bean class="com.youpu.utils.RedisCache">
-                    <property name="redisTemplate" ref="redisTemplate"/>
-                    <property name="name" value="content"/>
-                    <!--name对应的名称要在类或方法的注解中使用-->
-                </bean>
-            </set>
-        </property>
+    <!--配置redisCacheManager-->
+    <bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager">
+        <constructor-arg name="redisOperations" ref="redisTemplate"/>
+        <property name="defaultExpiration" value="${redis.expiration}"/>
     </bean>
 
 
